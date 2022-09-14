@@ -1,34 +1,27 @@
-// const { response, request } = require('../app')
-import pg from 'pg'
-const Pool = pg.Pool
-import dotenv from 'dotenv'
-dotenv.config()
-
-// const connectionString = `postgresql://`
-// const connectionString = `postgres://`
-
-// const pool = new Pool({
-//   user: 'me',
-//   host: 'localhost',
-//   database: 'api',
-//   password: 'password',
-//   port: 5432
-// })
-const pool = new Pool({
-  user: process.env.POSTGRES_USER,
-  host: 'localhost',
-  database: process.env.POSTGRES_DB,
-  password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT
-})
+import pool from './db.js'
 
 const getUsers = (req, res) => {
-  pool.query('select * from user_account order by id asc', (error, results) => {
-    if (error) {
-      throw error
-    }
-    res.status(200).json(results.rows)
-  })
+  const filter = req.query.filter
+  let q
+  if (Object.keys(req.query).length === 0) {
+    // without fitler - return all users
+    q = 'select * from user_account order by id asc'
+    pool.query(q, (error, results) => {
+      if (error) {
+        throw error
+      }
+      res.status(200).json(results.rows)
+    })
+  } else {
+    // with filter
+    q = 'select * from user_account where lower(name) like $1'
+    pool.query(q, ['%' + filter + '%'], (error, results) => {
+      if (error) {
+        throw error
+      }
+      res.status(200).json(results.rows)
+    })
+  }
 }
 
 const getUserById = (req, res) => {

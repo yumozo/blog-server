@@ -6,19 +6,17 @@ import logger from 'morgan'
 import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
-
-import indexRouter from './routes/index.js'
-import usersRouter from './routes/users.js'
-import testRouter from './routes/test.js'
-import dbRouter from './routes/db.js'
+// routes
+import usersRouter from './src/routes/users.js'
+import postsRoutes from './src/routes/posts.js'
 
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 // config
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'ejs');
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -30,31 +28,18 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(/*'/static',*/ express.static(path.join(__dirname, 'public')));
+// app.use(/*'/static',*/ express.static(path.join(__dirname, 'public')));
 
 // General
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 // User
 app.use('/api/users', usersRouter);
-// My
-app.use('/db', dbRouter)
-app.use('/test', testRouter)
-const requestTime = (req, res, next) => {
-  req.requestTime = Date.now()
-  next()
-}
-app.use(requestTime)
-app.get('/test/time', (req, res) => {
-  let responseText = 'Hello World!<br />'
-  responseText += `<small>Request at: ${req.requestTime}</small>`
-  res.send(responseText)
-})
-// ---
+app.use('/api/posts', postsRoutes);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+app.get('*', (req, res, next) => {
+  res.send('404')
+})
 
 // error handler
 app.use(function (err, req, res, next) {
@@ -64,7 +49,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.send('error');
 });
 
 export default app;

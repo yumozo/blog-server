@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-import app from '../app.js'
+import app from '../../app.js'
 import Debug from 'debug'
 const debug = Debug('testexpress:server')
 import http from 'http'

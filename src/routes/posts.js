@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 
-import db from '../data/queries.js'
+import db from '../data/userQueries.js'
 
 router.get('/', db.getUsers);
 router.get('/:id', db.getUserById);

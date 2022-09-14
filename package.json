@@ -4,8 +4,8 @@
   "main": "bin/index.js",
   "type": "module",
   "scripts": {
-    "start": "node ./bin/index.js",
-    "watch": "nodemon ./bin/index.js"
+    "start": "node ./src/bin/index.js",
+    "watch": "nodemon ./src/bin/index.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
