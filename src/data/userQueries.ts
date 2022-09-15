@@ -1,11 +1,12 @@
+import { RequestHandler } from 'express'
 import pool from './db.js'
 
-const getUsers = (req, res) => {
+const getUsers: RequestHandler = (req, res) => {
   const filter = req.query.filter
   let q
   if (Object.keys(req.query).length === 0) {
     // without fitler - return all users
-    q = 'select * from user_account order by id asc'
+    q = 'select * from user_account order by user_id asc'
     pool.query(q, (error, results) => {
       if (error) {
         throw error
@@ -24,10 +25,10 @@ const getUsers = (req, res) => {
   }
 }
 
-const getUserById = (req, res) => {
+const getUserById: RequestHandler = (req, res) => {
   const id = parseInt(req.params.id)
 
-  pool.query('select * from user_account where id = $1', [id], (error, results) => {
+  pool.query('select * from user_account where user_id = $1', [id], (error, results) => {
     if (error) {
       throw error
     }
@@ -35,11 +36,13 @@ const getUserById = (req, res) => {
   })
 }
 
-const createUser = (req, res) => {
-  const { name, email } = req.body
+const createUser: RequestHandler = (req, res) => {
+  const { name, email, password } = req.body
+  const q = `
+    insert into user_account (name, email, password_hash)
+    values ($1, $2, $3) returning *`
 
-  pool.query('insert into user_account (name, email) values ($1, $2) returning *',
-    [name, email], (error, results) => {
+  pool.query(q, [name, email, password], (error, results) => {
       if (error) {
         throw error
       }
@@ -47,12 +50,12 @@ const createUser = (req, res) => {
     })
 }
 
-const updateUser = (req, res) => {
+const updateUser: RequestHandler = (req, res) => {
   const id = parseInt(req.params.id)
   const { name, email } = req.body
 
   pool.query(
-    'update user_account set name = $1, email = $2 where id = $3',
+    'update user_account set name = $1, email = $2 where user_id = $3',
     [name, email, id],
     (error, results) => {
       if (error) {
@@ -63,10 +66,10 @@ const updateUser = (req, res) => {
   )
 }
 
-const deleteUser = (req, res) => {
+const deleteUser: RequestHandler = (req, res) => {
   const id = parseInt(req.params.id)
 
-  pool.query('delete from user_account where id = $1',
+  pool.query('delete from user_account where user_id = $1',
     [id], (error, results) => {
       if (error) {
         throw error

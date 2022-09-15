@@ -1,5 +1,4 @@
-import createError from 'http-errors'
-import express from 'express'
+import express, { ErrorRequestHandler } from 'express'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
@@ -7,8 +6,8 @@ import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
 // routes
-import usersRouter from './src/routes/users.js'
-import postsRoutes from './src/routes/posts.js'
+import usersRouter from './routes/users.js'
+import postsRoutes from './routes/posts.js'
 
 const app = express();
 
@@ -42,7 +41,7 @@ app.get('*', (req, res, next) => {
 })
 
 // error handler
-app.use(function (err, req, res, next) {
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -50,6 +49,8 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.send('error');
-});
+
+}
+app.use(errorHandler);
 
 export default app;

@@ -8,7 +8,7 @@ const pool = new Pool({
   host: 'localhost',
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT
+  port: parseInt(<string>process.env.POSTGRES_PORT, 10)
 })
 
 export default pool

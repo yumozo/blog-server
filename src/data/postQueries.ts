@@ -1,11 +1,14 @@
+import { RequestHandler } from 'express'
 import pool from './db.js'
 
-const getPosts = (req, res) => {
+const getPosts: RequestHandler = (req, res) => {
   const filter = req.query.filter
   let q
-  if (Object.keys(req.query).length === 0 && filter.length <= 3) {
+  if (Object.keys(req.query).length === 0
+    && filter?.length
+    && filter.length <= 3) {
     // without fitler - return all users
-    q = 'select * from post order by id asc'
+    q = 'select * from post order by post_id asc'
     pool.query(q, (error, results) => {
       if (error) {
         throw error
@@ -24,10 +27,13 @@ const getPosts = (req, res) => {
   }
 }
 
-const getPostById = (req, res) => {
+const getPostById: RequestHandler = (req, res) => {
   const id = parseInt(req.params.id)
 
-  pool.query('select * from post where id = $1', [id], (error, results) => {
+  const q1 = 'select * from post where post_id = $1'
+  const q2 =
+    `select p.title, p.content, p.slug, p.creation_date, u.name, u.user_id from post p inner join user_account u on p.author_id = u.user_id where p.post_id = $1`
+  pool.query(q2, [id], (error, results) => {
     if (error) {
       throw error
     }
@@ -35,7 +41,7 @@ const getPostById = (req, res) => {
   })
 }
 
-const createPost = (req, res) => {
+const createPost: RequestHandler = (req, res) => {
   const { name, email } = req.body
 
   pool.query('insert into post (name, email) values ($1, $2) returning *',
@@ -63,10 +69,10 @@ const createPost = (req, res) => {
 //   )
 // }
 
-const deletePost = (req, res) => {
+const deletePost: RequestHandler = (req, res) => {
   const id = parseInt(req.params.id)
 
-  pool.query('delete from post where id = $1',
+  pool.query('delete from post where post_id = $1',
     [id], (error, results) => {
       if (error) {
         throw error

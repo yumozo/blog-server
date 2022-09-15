@@ -1,0 +1,6 @@
+CREATE TABLE tag (
+  tag_id SERIAL PRIMARY KEY,
+  title VARCHAR(40) NOT NULL,
+  slug VARCHAR(40) not null,
+  CONTENT VARCHAR
+)
