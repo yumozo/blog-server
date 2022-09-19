@@ -4,21 +4,19 @@ import pool from './db.js'
 const getPosts: RequestHandler = (req, res) => {
   const filter = req.query.filter
   let q
-  if (Object.keys(req.query).length === 0
-    && filter?.length
-    && filter.length <= 3) {
-    // without fitler - return all users
-    q = 'select * from post order by post_id asc'
-    pool.query(q, (error, results) => {
+  if (filter) {
+    // with filter
+    q = 'select * from post where lower(content) like $1'
+    pool.query(q, ['%' + filter + '%'], (error, results) => {
       if (error) {
         throw error
       }
       res.status(200).json(results.rows)
     })
   } else {
-    // with filter
-    q = 'select * from post where lower(content) like $1'
-    pool.query(q, ['%' + filter + '%'], (error, results) => {
+    // without fitler - return all users
+    q = 'select * from post order by post_id asc'
+    pool.query(q, (error, results) => {
       if (error) {
         throw error
       }
@@ -42,14 +40,23 @@ const getPostById: RequestHandler = (req, res) => {
 }
 
 const createPost: RequestHandler = (req, res) => {
-  const { name, email } = req.body
-
-  pool.query('insert into post (name, email) values ($1, $2) returning *',
-    [name, email], (error, results) => {
+  const {
+    author_id, // $1
+    title, // $2
+    slug, // $3
+    summary, // $4
+    creation_date, // $5
+    content // $6
+  } = req.body
+  
+  pool.query(
+    `insert into post (author_id, title, slug, summary, creation_date, content)
+      values ($1, $2, $3, $4, $5, $6) returning *`,
+    [author_id, title, slug, summary, creation_date, content], (error, results) => {
       if (error) {
         throw error
       }
-      res.status(201).send(`Users added with ID: ${results.rows[0].id}`)
+      res.status(201).send(`Posts added with ID: ${results.rows[0].post_id}`)
     })
 }
 

@@ -2,7 +2,6 @@ import { RequestHandler } from 'express'
 import pool from './db.js'
 
 const getUsers: RequestHandler = (req, res) => {
-  const filter = req.query.filter
   let q
   if (Object.keys(req.query).length === 0) {
     // without fitler - return all users
@@ -16,7 +15,7 @@ const getUsers: RequestHandler = (req, res) => {
   } else {
     // with filter
     q = 'select * from user_account where lower(name) like $1'
-    pool.query(q, ['%' + filter + '%'], (error, results) => {
+    pool.query(q, ['%' + req.query.filter + '%'], (error, results) => {
       if (error) {
         throw error
       }
@@ -29,6 +28,17 @@ const getUserById: RequestHandler = (req, res) => {
   const id = parseInt(req.params.id)
 
   pool.query('select * from user_account where user_id = $1', [id], (error, results) => {
+    if (error) {
+      throw error
+    }
+    res.status(200).json(results.rows)
+  })
+}
+
+const getUserByName: RequestHandler = (req, res) => {
+  pool.query('select * from user_account where lower(name) = $1',
+    ["lower(" + req.params.name + ")"],
+    (error, results) => {
     if (error) {
       throw error
     }
@@ -81,6 +91,7 @@ const deleteUser: RequestHandler = (req, res) => {
 export default {
   getUsers,
   getUserById,
+  getUserByName,
   createUser,
   updateUser,
   deleteUser

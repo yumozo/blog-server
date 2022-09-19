@@ -8,6 +8,8 @@ import db from '../data/userQueries.js'
 router.get('/', db.getUsers);
 // get by id
 router.get('/:id', db.getUserById);
+// get by name
+router.get('/byName/:name', db.getUserByName);
 // create a user
 router.post('/', db.createUser);
 // update
