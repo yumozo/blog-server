@@ -41,18 +41,32 @@ const getPostById: RequestHandler = (req, res) => {
 
 const createPost: RequestHandler = (req, res) => {
   const {
-    author_id, // $1
-    title, // $2
-    slug, // $3
-    summary, // $4
-    creation_date, // $5
-    content // $6
+    author_id, // 1
+    title, // 2
+    slug, // 3
+    summary, // 4
+    creation_date, // 5
+    content, // 6
+    tag, // 7
   } = req.body
+  let q = `
+    insert into post (author_id, title, slug, summary, creation_date, content, tag)
+      values ($1, $2, $3, $4, $5, $6) returning *
+    insert into post_tag (post_id, tag_id)
+      values ($8, $7)`
+  let q1 = `select createpost($1, $2, $3, $4, $5, $6, $7)` 
   
-  pool.query(
-    `insert into post (author_id, title, slug, summary, creation_date, content)
-      values ($1, $2, $3, $4, $5, $6) returning *`,
-    [author_id, title, slug, summary, creation_date, content], (error, results) => {
+  pool.query(q1,
+    [
+      author_id,
+      title,
+      slug,
+      summary,
+      creation_date,
+      content,
+      tag,
+    ],
+    (error, results) => {
       if (error) {
         throw error
       }

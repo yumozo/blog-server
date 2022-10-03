@@ -36,8 +36,10 @@ const getUserById: RequestHandler = (req, res) => {
 }
 
 const getUserByName: RequestHandler = (req, res) => {
-  pool.query('select * from user_account where lower(name) = $1',
-    ["lower(" + req.params.name + ")"],
+  const pattern = req.params.name
+  pool.query('select * from getuserbyname($1)',
+    // ["lower(" + req.params.name + ")"],
+    [pattern],
     (error, results) => {
     if (error) {
       throw error
